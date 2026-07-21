@@ -4,11 +4,11 @@ on:
   push:
     branches: [seedhand-mobile-0.5.0]
     paths:
-      - 'seedhand-0.5.1-standalone.html'
+      - 'seedhand-0.5.2-standalone.html'
       - '.github/workflows/seedhand-standalone.yml'
   pull_request:
     paths:
-      - 'seedhand-0.5.1-standalone.html'
+      - 'seedhand-0.5.2-standalone.html'
       - '.github/workflows/seedhand-standalone.yml'
 
 permissions:
@@ -26,7 +26,7 @@ jobs:
         run: |
           node - <<'NODE'
           const fs = require('fs');
-          const html = fs.readFileSync('seedhand-0.5.1-standalone.html', 'utf8');
+          const html = fs.readFileSync('seedhand-0.5.2-standalone.html', 'utf8');
           const match = html.match(/<script>([\s\S]*?)<\/script>/i);
           if (!match) throw new Error('Inline script not found');
           if (!html.includes('</html>')) throw new Error('HTML document is incomplete');
@@ -39,8 +39,10 @@ jobs:
         run: node --check /tmp/seedhand-inline.js
       - name: Check required mobile systems
         run: |
-          grep -q 'pointerdown' seedhand-0.5.1-standalone.html
-          grep -q 'beginGesture' seedhand-0.5.1-standalone.html
-          grep -q 'safe-area-inset' seedhand-0.5.1-standalone.html
-          grep -q 'chooseWeather' seedhand-0.5.1-standalone.html
-          grep -q 'waterCharges' seedhand-0.5.1-standalone.html
+          grep -q 'pointerdown' seedhand-0.5.2-standalone.html
+          grep -q 'beginGesture' seedhand-0.5.2-standalone.html
+          grep -q 'safe-area-inset' seedhand-0.5.2-standalone.html
+          grep -q 'clampCamera' seedhand-0.5.2-standalone.html
+          grep -q 'waterCharges' seedhand-0.5.2-standalone.html
+          grep -q 'const germ=' seedhand-0.5.2-standalone.html
+          grep -q "X.fillStyle='#17241d'" seedhand-0.5.2-standalone.html
