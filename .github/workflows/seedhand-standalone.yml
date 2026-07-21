@@ -1,0 +1,48 @@
+name: Validate Seedhand Standalone
+
+on:
+  push:
+    branches: [seedhand-mobile-0.5.0]
+    paths:
+      - 'seedhand-0.5.2-standalone.html'
+      - '.github/workflows/seedhand-standalone.yml'
+  pull_request:
+    paths:
+      - 'seedhand-0.5.2-standalone.html'
+      - '.github/workflows/seedhand-standalone.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Extract inline JavaScript
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const html = fs.readFileSync('seedhand-0.5.2-standalone.html', 'utf8');
+          const match = html.match(/<script>([\s\S]*?)<\/script>/i);
+          if (!match) throw new Error('Inline script not found');
+          if (!html.includes('</html>')) throw new Error('HTML document is incomplete');
+          if (/<script[^>]+src=/i.test(html)) throw new Error('External script detected');
+          if (/<link[^>]+stylesheet/i.test(html)) throw new Error('External stylesheet detected');
+          fs.writeFileSync('/tmp/seedhand-inline.js', match[1]);
+          console.log(`Standalone size: ${Buffer.byteLength(html)} bytes`);
+          NODE
+      - name: Check JavaScript syntax
+        run: node --check /tmp/seedhand-inline.js
+      - name: Check required mobile systems
+        run: |
+          grep -q 'pointerdown' seedhand-0.5.2-standalone.html
+          grep -q 'beginGesture' seedhand-0.5.2-standalone.html
+          grep -q 'safe-area-inset' seedhand-0.5.2-standalone.html
+          grep -q 'clampCamera' seedhand-0.5.2-standalone.html
+          grep -q 'waterCharges' seedhand-0.5.2-standalone.html
+          grep -q 'const germ=' seedhand-0.5.2-standalone.html
+          grep -q "X.fillStyle='#17241d'" seedhand-0.5.2-standalone.html
